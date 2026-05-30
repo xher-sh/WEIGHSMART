@@ -1,0 +1,219 @@
+{% extends 'base.html' %}
+{% block title %}Dashboard{% endblock %}
+{% block page_title %}Dashboard{% endblock %}
+{% block page_subtitle %}{{ request.user.get_full_name|default:request.user.username }}'s health overview{% endblock %}
+
+{% block content %}
+<!-- Stat Cards Row -->
+<div class="row g-3 mb-4">
+  <div class="col-sm-6 col-xl-3">
+    <div class="stat-card">
+      <div class="stat-icon green">⚖️</div>
+      <div>
+        <div class="stat-value">
+          {% if latest_weight %}{{ latest_weight.weight }}<small style="font-size:16px;font-weight:500;">kg</small>{% else %}—{% endif %}
+        </div>
+        <div class="stat-label">Current Weight</div>
+        {% if profile.target_weight %}
+        <div style="font-size:11px;color:var(--text-muted);margin-top:2px;">Target: {{ profile.target_weight }}kg</div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+  <div class="col-sm-6 col-xl-3">
+    <div class="stat-card">
+      <div class="stat-icon orange">🔥</div>
+      <div>
+        <div class="stat-value">{{ today_calories }}<small style="font-size:16px;font-weight:500;">kcal</small></div>
+        <div class="stat-label">Calories Today</div>
+        <div style="font-size:11px;color:var(--text-muted);margin-top:2px;">Goal: {{ calorie_goal }} kcal</div>
+      </div>
+    </div>
+  </div>
+  <div class="col-sm-6 col-xl-3">
+    <div class="stat-card">
+      <div class="stat-icon blue">💧</div>
+      <div>
+        <div class="stat-value">{{ today_water }}<small style="font-size:16px;font-weight:500;">/{{ water_goal }}</small></div>
+        <div class="stat-label">Glasses of Water</div>
+        <div class="progress mt-2" style="height:6px;">
+          <div class="progress-bar blue" style="width:{{ water_pct }}%;"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-sm-6 col-xl-3">
+    <div class="stat-card">
+      <div class="stat-icon purple">✅</div>
+      <div>
+        <div class="stat-value">{{ habits_completed_today }}<small style="font-size:16px;font-weight:500;">/{{ total_habits }}</small></div>
+        <div class="stat-label">Habits Done Today</div>
+        <div style="font-size:11px;color:var(--text-muted);margin-top:2px;">
+          {% if total_habits > 0 %}{{ habits_completed_today }} of {{ total_habits }} completed{% else %}No habits yet{% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Progress Cards Row -->
+<div class="row g-3 mb-4">
+  <!-- Weight Progress -->
+  <div class="col-lg-4">
+    <div class="card h-100">
+      <div class="card-header">
+        <span class="card-title">🎯 Weight Goal Progress</span>
+      </div>
+      <div class="card-body">
+        {% if profile.starting_weight and profile.target_weight %}
+        <div class="text-center mb-3">
+          <div style="font-size:48px;font-weight:800;font-family:'Nunito',sans-serif;
+                      background:linear-gradient(135deg,var(--primary),var(--secondary));
+                      -webkit-background-clip:text;-webkit-text-fill-color:transparent;">
+            {{ progress_pct }}%
+          </div>
+          <div style="font-size:13px;color:var(--text-muted);">of your goal achieved</div>
+        </div>
+        <div class="progress mb-3">
+          <div class="progress-bar green" style="width:{{ progress_pct }}%;"></div>
+        </div>
+        <div class="d-flex justify-content-between" style="font-size:12px;color:var(--text-muted);">
+          <span>Start: {{ profile.starting_weight }}kg</span>
+          <span>Target: {{ profile.target_weight }}kg</span>
+        </div>
+        {% else %}
+        <div class="text-center py-4">
+          <div style="font-size:40px;">🎯</div>
+          <p style="font-size:14px;color:var(--text-muted);margin-top:8px;">Set your weight goals in your profile to track progress.</p>
+          <a href="{% url 'profile' %}" class="btn btn-outline-primary btn-sm">Set Goals</a>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <!-- Calorie Progress -->
+  <div class="col-lg-4">
+    <div class="card h-100">
+      <div class="card-header">
+        <span class="card-title">🔥 Calorie Budget</span>
+        <a href="{% url 'calorie_tracker' %}" style="font-size:13px;color:var(--primary);">Add meal →</a>
+      </div>
+      <div class="card-body">
+        <div class="d-flex justify-content-between mb-2" style="font-size:14px;">
+          <span style="font-weight:600;">{{ today_calories }} kcal consumed</span>
+          <span style="color:var(--text-muted);">{{ calorie_goal }} goal</span>
+        </div>
+        <div class="progress mb-3">
+          <div class="progress-bar orange" style="width:{{ calorie_pct }}%;"></div>
+        </div>
+        <div style="font-size:13px;color:var(--text-muted);">
+          {% with remaining=calorie_goal|add:"-1"|add:today_calories %}
+          {% if calorie_pct < 100 %}
+          <span style="color:var(--primary);">✅ {{ calorie_goal }} – {{ today_calories }} = {{ calorie_goal|add:"-0" }} kcal remaining</span>
+          {% else %}
+          <span style="color:var(--danger);">⚠️ Over daily goal</span>
+          {% endif %}
+          {% endwith %}
+        </div>
+        <div class="mt-3 p-3 rounded" style="background:var(--surface);font-size:13px;">
+          <strong>{{ calorie_pct }}%</strong> of daily target consumed
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Water Progress -->
+  <div class="col-lg-4">
+    <div class="card h-100">
+      <div class="card-header">
+        <span class="card-title">💧 Hydration</span>
+        <a href="{% url 'water_tracker' %}" style="font-size:13px;color:var(--secondary);">Log water →</a>
+      </div>
+      <div class="card-body">
+        <div class="glass-grid mb-3">
+          {% for i in "12345678" %}
+          <div class="glass-item {% if forloop.counter <= today_water %}filled{% endif %}">💧</div>
+          {% endfor %}
+        </div>
+        <div class="progress mb-2">
+          <div class="progress-bar blue" style="width:{{ water_pct }}%;"></div>
+        </div>
+        <div style="font-size:13px;color:var(--text-muted);">
+          {{ today_water }} of {{ water_goal }} glasses — {{ water_pct }}%
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Habits + Achievements Row -->
+<div class="row g-3">
+  <!-- Today's Habits -->
+  <div class="col-lg-6">
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">✅ Today's Habits</span>
+        <a href="{% url 'habit_tracker' %}" style="font-size:13px;color:var(--primary);">View all →</a>
+      </div>
+      {% if habits %}
+      <div>
+        {% for habit in habits %}
+        <div class="habit-item">
+          <a href="{% url 'toggle_habit' habit.pk %}" style="text-decoration:none;">
+            <div class="habit-toggle {% if habit.is_completed_today %}done{% endif %}">
+              {% if habit.is_completed_today %}✓{% endif %}
+            </div>
+          </a>
+          <div style="flex:1;">
+            <div style="font-weight:600;font-size:14px;">{{ habit.icon }} {{ habit.name }}</div>
+          </div>
+          {% with streak=habit.get_current_streak %}
+          {% if streak > 0 %}
+          <span class="streak-badge">🔥 {{ streak }}d</span>
+          {% endif %}
+          {% endwith %}
+        </div>
+        {% endfor %}
+      </div>
+      {% else %}
+      <div class="card-body text-center py-4">
+        <div style="font-size:40px;">✅</div>
+        <p style="font-size:14px;color:var(--text-muted);margin-top:8px;">No habits yet. Start building healthy routines!</p>
+        <a href="{% url 'add_habit' %}" class="btn btn-primary btn-sm">Add First Habit</a>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Recent Achievements -->
+  <div class="col-lg-6">
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">🏆 Recent Achievements</span>
+        <a href="{% url 'achievements' %}" style="font-size:13px;color:var(--primary);">View all →</a>
+      </div>
+      <div class="card-body">
+        {% if recent_achievements %}
+        <div class="row g-2">
+          {% for ach in recent_achievements %}
+          <div class="col-6">
+            <div class="achievement-card earned">
+              <span class="achievement-icon">{{ ach.get_icon }}</span>
+              <div class="achievement-name">{{ ach.get_badge_type_display }}</div>
+              <div style="font-size:11px;color:var(--text-muted);margin-top:4px;">{{ ach.earned_at|date:"M d, Y" }}</div>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+        {% else %}
+        <div class="text-center py-4">
+          <div style="font-size:40px;">🏅</div>
+          <p style="font-size:14px;color:var(--text-muted);margin-top:8px;">No achievements yet. Start logging to earn badges!</p>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,92 @@
+{% extends 'base.html' %}
+{% block title %}Profile{% endblock %}
+{% block page_title %}👤 My Profile{% endblock %}
+{% block page_subtitle %}Manage your health goals{% endblock %}
+
+{% block content %}
+<div class="row g-4">
+  <div class="col-lg-4">
+    <div class="card text-center">
+      <div class="card-body py-5">
+        <div style="width:80px;height:80px;background:linear-gradient(135deg,var(--primary),var(--secondary));
+                    border-radius:50%;display:flex;align-items:center;justify-content:center;
+                    font-size:36px;font-weight:800;color:white;margin:0 auto 16px;">
+          {{ request.user.username|first|upper }}
+        </div>
+        <h4 style="font-family:'Nunito',sans-serif;font-weight:800;">
+          {{ request.user.get_full_name|default:request.user.username }}
+        </h4>
+        <p style="color:var(--text-muted);font-size:14px;">@{{ request.user.username }}</p>
+        <p style="color:var(--text-muted);font-size:13px;">{{ request.user.email }}</p>
+
+        <hr style="border-color:var(--border);">
+
+        <div class="row text-center">
+          <div class="col-4">
+            <div style="font-size:22px;font-weight:800;font-family:'Nunito',sans-serif;color:var(--primary);">
+              {{ request.user.weight_entries.count }}
+            </div>
+            <div style="font-size:11px;color:var(--text-muted);">Weigh-ins</div>
+          </div>
+          <div class="col-4">
+            <div style="font-size:22px;font-weight:800;font-family:'Nunito',sans-serif;color:var(--secondary);">
+              {{ request.user.meals.count }}
+            </div>
+            <div style="font-size:11px;color:var(--text-muted);">Meals</div>
+          </div>
+          <div class="col-4">
+            <div style="font-size:22px;font-weight:800;font-family:'Nunito',sans-serif;color:var(--accent);">
+              {{ request.user.achievements.count }}
+            </div>
+            <div style="font-size:11px;color:var(--text-muted);">Badges</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-lg-8">
+    <div class="card">
+      <div class="card-header"><span class="card-title">⚙️ Health Goals & Settings</span></div>
+      <div class="card-body">
+        <form method="post">
+          {% csrf_token %}
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label">Starting Weight (kg)</label>
+              {{ form.starting_weight }}
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Target Weight (kg)</label>
+              {{ form.target_weight }}
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Height (cm)</label>
+              {{ form.height }}
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Daily Calorie Goal</label>
+              {{ form.daily_calorie_goal }}
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Daily Water Goal (glasses)</label>
+              {{ form.daily_water_goal }}
+            </div>
+          </div>
+
+          {% if profile.starting_weight and profile.target_weight and profile.height %}
+          <div class="mt-4 p-3 rounded" style="background:var(--primary-light);">
+            <strong style="font-size:13px;color:var(--primary-dark);">📊 Current BMI (estimated)</strong>
+            <p style="font-size:13px;color:var(--text);margin-top:4px;">
+              Based on your height of {{ profile.height }}cm and target {{ profile.target_weight }}kg
+            </p>
+          </div>
+          {% endif %}
+
+          <button type="submit" class="btn btn-primary mt-4 px-5">Save Changes ✅</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

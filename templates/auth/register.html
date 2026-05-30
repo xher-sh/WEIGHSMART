@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Register — WeighSmart</title>
+{% load static %}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+<link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body class="auth-page">
+<div class="auth-card" style="max-width:560px;">
+  <div class="auth-logo">
+    <span class="logo-icon">⚖️</span> WeighSmart
+  </div>
+  <p style="color:var(--text-muted);font-size:14px;margin-bottom:28px;">Create your free account and start your journey</p>
+
+  <form method="post">
+    {% csrf_token %}
+    <div class="row g-3">
+      <div class="col-6">
+        <label class="form-label">First Name</label>
+        {{ form.first_name }}
+        {% if form.first_name.errors %}<div class="text-danger" style="font-size:12px;">{{ form.first_name.errors.0 }}</div>{% endif %}
+      </div>
+      <div class="col-6">
+        <label class="form-label">Last Name</label>
+        {{ form.last_name }}
+      </div>
+      <div class="col-12">
+        <label class="form-label">Username</label>
+        {{ form.username }}
+        {% if form.username.errors %}<div class="text-danger" style="font-size:12px;">{{ form.username.errors.0 }}</div>{% endif %}
+      </div>
+      <div class="col-12">
+        <label class="form-label">Email</label>
+        {{ form.email }}
+      </div>
+      <div class="col-6">
+        <label class="form-label">Password</label>
+        {{ form.password1 }}
+        {% if form.password1.errors %}<div class="text-danger" style="font-size:12px;">{{ form.password1.errors.0 }}</div>{% endif %}
+      </div>
+      <div class="col-6">
+        <label class="form-label">Confirm Password</label>
+        {{ form.password2 }}
+      </div>
+      <div class="col-12"><hr style="border-color:var(--border);"><p style="font-size:13px;font-weight:600;color:var(--text-muted);">🎯 Health Goals (Optional)</p></div>
+      <div class="col-6">
+        <label class="form-label">Starting Weight (kg)</label>
+        {{ form.starting_weight }}
+      </div>
+      <div class="col-6">
+        <label class="form-label">Target Weight (kg)</label>
+        {{ form.target_weight }}
+      </div>
+      <div class="col-4">
+        <label class="form-label">Height (cm)</label>
+        {{ form.height }}
+      </div>
+      <div class="col-4">
+        <label class="form-label">Calorie Goal</label>
+        {{ form.daily_calorie_goal }}
+      </div>
+      <div class="col-4">
+        <label class="form-label">Water Goal (glasses)</label>
+        {{ form.daily_water_goal }}
+      </div>
+    </div>
+    <button type="submit" class="btn btn-primary w-100 py-2 mt-4" style="font-size:15px;">Create Account 🎉</button>
+  </form>
+
+  <p class="text-center mt-3" style="font-size:14px;color:var(--text-muted);">
+    Already have an account? <a href="{% url 'login' %}" style="color:var(--primary);font-weight:600;">Sign in</a>
+  </p>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

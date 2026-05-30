@@ -1,0 +1,150 @@
+{% extends 'base.html' %}
+{% block title %}Weight Tracker{% endblock %}
+{% block page_title %}⚖️ Weight Tracker{% endblock %}
+{% block page_subtitle %}Log and visualise your weight journey{% endblock %}
+
+{% block content %}
+<div class="row g-4">
+  <!-- Log Form -->
+  <div class="col-lg-4">
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">📝 Log Weight</span>
+      </div>
+      <div class="card-body">
+        <form method="post">
+          {% csrf_token %}
+          {% for field in form %}
+          <div class="mb-3">
+            <label class="form-label">{{ field.label }}</label>
+            {{ field }}
+            {% if field.errors %}<div class="text-danger" style="font-size:12px;">{{ field.errors.0 }}</div>{% endif %}
+          </div>
+          {% endfor %}
+          <button type="submit" class="btn btn-primary w-100">Log Weight ✅</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Chart + History -->
+  <div class="col-lg-8">
+    <!-- Chart -->
+    <div class="card mb-4">
+      <div class="card-header">
+        <span class="card-title">📈 Weight Trend (Last 30 Days)</span>
+      </div>
+      <div class="card-body">
+        {% if entries %}
+        <canvas id="weightChart" height="100"></canvas>
+        {% else %}
+        <div class="text-center py-5">
+          <div style="font-size:50px;">📊</div>
+          <p style="color:var(--text-muted);margin-top:12px;">Start logging your weight to see your trend chart!</p>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- History Table -->
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">📋 Weight History</span>
+      </div>
+      <div class="card-body p-0">
+        {% if entries %}
+        <div class="table-responsive">
+          <table class="table table-hover mb-0">
+            <thead style="background:var(--surface);">
+              <tr>
+                <th class="px-4 py-3">Date</th>
+                <th>Weight (kg)</th>
+                <th>Change</th>
+                <th>Notes</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for entry in entries %}
+              <tr>
+                <td class="px-4">{{ entry.date|date:"D, M d Y" }}</td>
+                <td>
+                  <span style="font-weight:700;font-size:16px;color:var(--dark);">{{ entry.weight }}</span> kg
+                </td>
+                <td>
+                  {% if forloop.counter < entries|length %}
+                    {% with prev=entries|slice:forloop.counter|first %}
+                    {% with diff=entry.weight|add:"-0" %}
+                      <span class="badge-pill {% if diff > 0 %}badge-green{% else %}badge-blue{% endif %}">
+                        —
+                      </span>
+                    {% endwith %}
+                    {% endwith %}
+                  {% else %}
+                  <span class="badge-pill badge-gray">First log</span>
+                  {% endif %}
+                </td>
+                <td style="color:var(--text-muted);font-size:13px;">{{ entry.notes|default:"—"|truncatechars:30 }}</td>
+                <td>
+                  <a href="{% url 'delete_weight' entry.pk %}"
+                     class="btn-danger-sm"
+                     onclick="return confirm('Delete this weight entry?')">🗑️</a>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        {% else %}
+        <div class="text-center py-5">
+          <p style="color:var(--text-muted);">No weight entries yet. Log your first weight above!</p>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+{% if entries %}
+<script>
+const ctx = document.getElementById('weightChart').getContext('2d');
+const labels = {{ chart_labels|safe }};
+const data   = {{ chart_data|safe }};
+
+new Chart(ctx, {
+  type: 'line',
+  data: {
+    labels,
+    datasets: [{
+      label: 'Weight (kg)',
+      data,
+      borderColor: '#10b981',
+      backgroundColor: 'rgba(16,185,129,0.1)',
+      borderWidth: 3,
+      pointBackgroundColor: '#10b981',
+      pointRadius: 5,
+      pointHoverRadius: 7,
+      tension: 0.4,
+      fill: true,
+    }]
+  },
+  options: {
+    responsive: true,
+    plugins: {
+      legend: { display: false },
+      tooltip: { mode: 'index', intersect: false }
+    },
+    scales: {
+      y: {
+        grid: { color: '#f1f5f9' },
+        ticks: { callback: v => v + ' kg' }
+      },
+      x: { grid: { display: false } }
+    }
+  }
+});
+</script>
+{% endif %}
+{% endblock %}

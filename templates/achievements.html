@@ -1,0 +1,67 @@
+{% extends 'base.html' %}
+{% block title %}Achievements{% endblock %}
+{% block page_title %}🏆 Achievements{% endblock %}
+{% block page_subtitle %}Your earned badges and milestones{% endblock %}
+
+{% block content %}
+<!-- Progress Banner -->
+<div class="card mb-4" style="background:linear-gradient(135deg,var(--dark),var(--dark-2));color:white;">
+  <div class="card-body py-4 text-center">
+    <div style="font-size:52px;font-weight:800;font-family:'Nunito',sans-serif;">
+      {{ earned_count }} <span style="font-size:24px;opacity:0.6;">/ {{ total_count }}</span>
+    </div>
+    <div style="font-size:16px;opacity:0.8;margin-top:4px;">badges earned</div>
+    <div class="progress mt-4" style="max-width:400px;margin:16px auto 0;height:12px;background:rgba(255,255,255,0.15);">
+      <div class="progress-bar green" style="width:{% widthratio earned_count total_count 100 %}%;"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Badge Grid -->
+<div class="row g-3">
+  {% for badge in all_badges %}
+  <div class="col-sm-6 col-md-4 col-lg-3">
+    <div class="achievement-card {% if badge.earned %}earned{% else %}locked{% endif %}">
+      <span class="achievement-icon">{{ badge.icon }}</span>
+      <div class="achievement-name">{{ badge.name }}</div>
+      {% if badge.earned %}
+      <div class="badge-pill badge-green mt-2" style="font-size:11px;justify-content:center;">✅ Earned</div>
+      {% else %}
+      <div style="font-size:11px;color:var(--text-muted);margin-top:6px;">🔒 Locked</div>
+      {% endif %}
+    </div>
+  </div>
+  {% endfor %}
+</div>
+
+<!-- How to earn section -->
+<div class="card mt-4">
+  <div class="card-header"><span class="card-title">💡 How to Earn Badges</span></div>
+  <div class="card-body">
+    <div class="row g-3">
+      <div class="col-md-6">
+        <div class="p-3 rounded" style="background:var(--surface);">
+          <strong>🔥 Streak Badges</strong>
+          <ul style="font-size:13px;color:var(--text-muted);margin-top:8px;padding-left:16px;line-height:2;">
+            <li>Complete a habit 3 days in a row → 3-Day Streak</li>
+            <li>Complete a habit 7 days in a row → 7-Day Streak</li>
+            <li>Complete a habit 30 days in a row → 30-Day Streak</li>
+          </ul>
+        </div>
+      </div>
+      <div class="col-md-6">
+        <div class="p-3 rounded" style="background:var(--surface);">
+          <strong>⚖️ Weight Badges</strong>
+          <ul style="font-size:13px;color:var(--text-muted);margin-top:8px;padding-left:16px;line-height:2;">
+            <li>Log your first weight → First Log badge</li>
+            <li>Lose 1 kg from starting weight → ⭐ badge</li>
+            <li>Lose 5 kg from starting weight → 🌟 badge</li>
+            <li>Lose 10 kg from starting weight → 💎 badge</li>
+            <li>Reach your target weight → 🎯 Goal Reached</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

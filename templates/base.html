@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{% block title %}WeighSmart{% endblock %} — WeighSmart</title>
+{% load static %}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+<link rel="stylesheet" href="{% static 'css/style.css' %}">
+{% block extra_head %}{% endblock %}
+</head>
+<body>
+
+<!-- Sidebar -->
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-brand">
+    <a href="{% url 'dashboard' %}" class="logo">
+      <span class="logo-icon">⚖️</span>
+      WeighSmart
+    </a>
+  </div>
+
+  <nav class="sidebar-nav">
+    <div class="nav-section-label">Overview</div>
+    <a href="{% url 'dashboard' %}" class="nav-link {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">
+      <span class="nav-icon">🏠</span> Dashboard
+    </a>
+
+    <div class="nav-section-label">Trackers</div>
+    <a href="{% url 'weight_tracker' %}" class="nav-link {% if request.resolver_match.url_name == 'weight_tracker' %}active{% endif %}">
+      <span class="nav-icon">⚖️</span> Weight
+    </a>
+    <a href="{% url 'calorie_tracker' %}" class="nav-link {% if request.resolver_match.url_name == 'calorie_tracker' %}active{% endif %}">
+      <span class="nav-icon">🥗</span> Calories
+    </a>
+    <a href="{% url 'water_tracker' %}" class="nav-link {% if request.resolver_match.url_name == 'water_tracker' %}active{% endif %}">
+      <span class="nav-icon">💧</span> Water
+    </a>
+    <a href="{% url 'habit_tracker' %}" class="nav-link {% if request.resolver_match.url_name == 'habit_tracker' %}active{% endif %}">
+      <span class="nav-icon">✅</span> Habits
+    </a>
+
+    <div class="nav-section-label">Progress</div>
+    <a href="{% url 'achievements' %}" class="nav-link {% if request.resolver_match.url_name == 'achievements' %}active{% endif %}">
+      <span class="nav-icon">🏆</span> Achievements
+    </a>
+    <a href="{% url 'profile' %}" class="nav-link {% if request.resolver_match.url_name == 'profile' %}active{% endif %}">
+      <span class="nav-icon">👤</span> Profile
+    </a>
+
+    <div class="nav-section-label">Account</div>
+    <a href="{% url 'logout' %}" class="nav-link">
+      <span class="nav-icon">🚪</span> Logout
+    </a>
+  </nav>
+</aside>
+
+<!-- Main -->
+<div class="main-content">
+  <!-- Topbar -->
+  <div class="topbar">
+    <div>
+      <button class="btn btn-sm d-md-none me-2" onclick="document.getElementById('sidebar').classList.toggle('open')" style="background:none;border:1px solid var(--border);">☰</button>
+      <span class="page-title">{% block page_title %}Dashboard{% endblock %}</span><br>
+      <span class="page-subtitle">{% block page_subtitle %}{% endblock %}</span>
+    </div>
+    <div class="user-menu">
+      <span style="font-size:13px;color:var(--text-muted);">{{ request.user.get_full_name|default:request.user.username }}</span>
+      <div class="user-avatar">{{ request.user.username|first|upper }}</div>
+    </div>
+  </div>
+
+  <!-- Alerts -->
+  <div style="padding: 0 32px;">
+    {% for message in messages %}
+    <div class="alert alert-{{ message.tags|default:'info' }} alert-dismissible fade show mt-3" role="alert">
+      {{ message }}
+      <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+    {% endfor %}
+  </div>
+
+  <!-- Page content -->
+  <div class="content-area">
+    {% block content %}{% endblock %}
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+{% block extra_js %}{% endblock %}
+</body>
+</html>
