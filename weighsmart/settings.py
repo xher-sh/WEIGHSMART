@@ -1,5 +1,6 @@
 import os
 from pathlib import Path
+from urllib.parse import urlparse
 
 import dj_database_url
 
@@ -20,15 +21,28 @@ SECRET_KEY = os.environ.get(
 
 DEBUG = os.environ.get('DEBUG', 'True').lower() == 'true'
 
+def host_from_value(value):
+    value = value.strip()
+    if '://' in value:
+        return urlparse(value).netloc
+    return value
+
+
 ALLOWED_HOSTS = [
-    host.strip()
-    for host in os.environ.get('ALLOWED_HOSTS', '127.0.0.1,localhost').split(',')
+    host_from_value(host)
+    for host in os.environ.get(
+        'ALLOWED_HOSTS',
+        '127.0.0.1,localhost,weighsmart.onrender.com',
+    ).split(',')
     if host.strip()
 ]
 
 CSRF_TRUSTED_ORIGINS = [
     origin.strip()
-    for origin in os.environ.get('CSRF_TRUSTED_ORIGINS', '').split(',')
+    for origin in os.environ.get(
+        'CSRF_TRUSTED_ORIGINS',
+        'https://weighsmart.onrender.com',
+    ).split(',')
     if origin.strip()
 ]
 
